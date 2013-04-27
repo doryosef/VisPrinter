@@ -1,4 +1,6 @@
-
+var percent = 0;
+var seconds = 0;
+var offset = 0;
 // get a single cookie from this domains cookies
 function getCookieValue(cookieName)
 {
@@ -34,17 +36,26 @@ VisPrinter=new function(){
 
 	// load a .stl or .gcode file for preview
 	this.load=function(file){
+		localStorage.gcode_name=file.name;
+		document.getElementById('filename').innerHTML=file.name;
+		localStorage.session=this.getSession();
 		document.getElementById('slicingStyle').innerHTML='.sliced{visibility: hidden;}';
 		var reader=new FileReader();
 		reader.onload=function(e){
 			var text=e.target.result;
 			var suffix=file.name.substring(file.name.lastIndexOf('.'));
-			if	 (suffix=='.stl'  ) VisPrinter.parseStl(text);
-			else if(suffix=='.gcode') {
+			if(suffix=='.gcode') {
 				VisPrinter.uploadGcode(text);
-				VisPrinter.onSliced(text);
+				if(confirm('Produce 3D gcode preview of '+file.name+' ?')==true){
+					document.getElementById('gcode_name').innerHTML='<i>working...</i>';
+					VisPrinter.onSliced(text);
+					document.getElementById('gcode_name').innerHTML=localStorage.gcode_name;
+					VisPrinter.console.value+='\n>Finished producing 3D g-code preview for '+filename;
+					tabs('3D_tab','3D');
+				}
+			} else {
+				alert('Bad file type '+suffix);
 			}
-			else alert('Bad file type '+suffix);
 		}
 		reader.onerror=function(e){
 			alert(e.message);
@@ -52,63 +63,7 @@ VisPrinter=new function(){
 		reader.readAsText(file);
 	}
 
-	// build a mesh from given polygons for 3d preview
-	this.buildMesh = function(polygons) {
-
-		var mesh = new GL.Mesh({ normals: true, colors: true });
-		var indexer = new GL.Indexer();
-		polygons.map(function(polygon) {
-			var indices = polygon.vertices.map(function(vertex) {
-				vertex.color = polygon.shared || [1, 1, 1];
-				return indexer.add(vertex);
-			});
-			for (var i = 2; i < indices.length; i++) {
-				mesh.triangles.push([indices[0], indices[i - 1], indices[i]]);
-			}
-		});
-		mesh.vertices = indexer.unique.map(function(v) { return [v.pos.x, v.pos.y, v.pos.z]; });
-		mesh.normals = indexer.unique.map(function(v) { return [v.normal.x, v.normal.y, v.normal.z]; });
-		mesh.colors = indexer.unique.map(function(v) { return v.color; });
-		//  mesh.computeWireframe();
-		mesh.compile();
-		//console.log("Mesh triangles: "+mesh.triangles.length);
-		return mesh;
-	};
-
-	// parse a .stl file for 3d preview
-	this.parseStl=function(stl){
-
-		this.stl=stl;
-
-		var mesh = new GL.Mesh({ normals: true, colors: true });
-
-		var lines=stl.split("\n");
-		var triangle=[];
-		var index=0;
-		for(var i=0; i<lines.length; i++){
-			var line=lines[i].trim();
-			if (line.indexOf("vertex")>-1){
-				var parts=line.split(/ +/);
-				var vertex=[parseFloat(parts[1]),parseFloat(parts[2]),parseFloat(parts[3])];
-				//var index=indexer.add(vertex);
-				triangle.push(index);
-				index++;
-				if(triangle.length==3) {
-					mesh.triangles.push(triangle);
-					triangle=[];
-				}
-				mesh.vertices.push(vertex);
-				mesh.colors.push([0,1,1]);
-			}
-		}
-		mesh.computeNormals();	
-		mesh.compile();
-		this.mesh=mesh;
-
-		this.update();
-	}
-
-	// issue a http POST request and call callback on response
+// issue a http POST request and call callback on response
 	this.httpPost=function(path,data, callback){
 		var req = new XMLHttpRequest();
 		req.overrideMimeType ( "text / plain"); 
@@ -129,6 +84,7 @@ VisPrinter=new function(){
 	}
 
 	// issue a http GET request and call callback on response
+	// relates to serve_state in webserver.py
 	this.httpGet=function(path,callback){
 		var req = new XMLHttpRequest();
 		req.overrideMimeType ( "text / plain"); 
@@ -143,16 +99,37 @@ VisPrinter=new function(){
 
 	// set progress indicator to given value and caption
 	// a value of 0 (nothing in progress) and 1 (completed) hides the indicator.
-	this.progress=function(caption, p){
-
+	this.progress=function(caption, p, time){
 		var indic		 =document.getElementById('progress');
 		var bar		   =document.getElementById('progressBar');
 		var captionElement=document.getElementById('progressName');
-
-		if(!caption) caption='';
-		captionElement.innerHTML=caption;
-
-		if (!p || p==1) indic.style.display='none';
+		var string;
+		if(!caption) {
+			string='';
+		} else {
+			string = parseInt(p*100)+'%';
+		}
+		if(time!=0){
+			var t = new Date(1970,0,1);
+			t.setSeconds(time);
+			string+=' | '+t.toTimeString().substr(0,8)+' elapsed';
+		}
+		if(parseInt(p*100)>1){
+			var t = new Date(1970,0,1);
+			if(percent==p){
+				seconds--;
+				t.setSeconds(seconds);
+			} else {
+				seconds=time/p-time;
+				t.setSeconds(seconds);
+				percent=p;
+			}				
+			string+=' | '+t.toTimeString().substr(0,8)+' remaining';
+		} else {
+			
+		}
+		captionElement.innerHTML=string;
+		if (!p || p>0.99) indic.style.display='none';
 		else			indic.style.display='block';
 		if(p==1) p=0;
 		if(p<0.02) p=0.02;
@@ -164,13 +141,18 @@ VisPrinter=new function(){
 			VisPrinter.httpGet('state',function(result){
 				VisPrinter.onState(result);
 			});
-			window.setTimeout(function(e){VisPrinter.checkState();},500);
+			VisPrinter.httpGet('temp', function(result){
+				//VisPrinter.onState(result);
+			});
+			VisPrinter.httpGet('posi', function(result){
+				//VisPrinter.onState(result);
+			});
+			window.setTimeout(function(e){VisPrinter.checkState();},1000);
 	}
 
 	// callback to handle a state report from the server
 	this.onState=function(response){
 		this.state=JSON.parse(response);
-		
 		// set progress indicator by ongoing server processes
 		this.onProgress(this.state.progress);
 
@@ -178,11 +160,14 @@ VisPrinter=new function(){
 		// named .property or .not_property that can be used to show/hide UI elements 
 		// depending on state
 		var stateStyle="";
-		for(key in this.state)
-			if	  (this.state[key]===false)
+		for(key in this.state){
+			if	  (this.state[key]===false) {
 				stateStyle+="."+key+"{visibility: hidden;}\n"
-			else if (this.state[key]===true ) 
-				stateStyle+=".not_"+key+"{visibility: hidden;}\n";
+			} else if (this.state[key]===true ) {
+				stateStyle+=".not_"+key
+				+"{visibility: hidden;}\n";
+			}
+		}
 		var stateElement=document.getElementById('stateStyle');
 		if (stateStyle!=stateElement.innerHTML) stateElement.innerHTML=stateStyle;
 	}
@@ -193,38 +178,13 @@ VisPrinter=new function(){
 		var parts=response.split(' ');
 		var caption=parts[0];
 		var progress=parseInt(parts[1]);
-
-		this.progress(caption, progress/100);
+		var time=0;
+		if(progress > 0){
+			time=parts[2];
+		}
+		this.progress(caption, progress/100, time);
 	}
 
-	// invoke the slicer.
-	// first, the .stl to be sliced is uploaded to the server
-	// second, if the upload completes, it's callback invokes the slicer
-	// third, if the slicer completes, it's callback calls onScliced(...)
-	this.slice=function(){
-		if(!this.stl){
-			alert("Nothing to slice. Load some .stl first.");
-			return;
-		}
-
-		var config=document.getElementById('config').value;
-
-		// create upload completed callback to invoke slicer
-		var onUploaded=function(response){
-			this.console.value+="\nSlicing...\n";
-			VisPrinter.httpGet('slic3r?config='+config,function(response){
-				// slicing completed callback
-				VisPrinter.console.value+="\nSlicing complete.\n";
-				VisPrinter.onSliced(response)
-			});
-		}
-
-		// issue request to upload .stl
-		this.httpPost('upload',{'stl':this.stl}, onUploaded);
-		VisPrinter.progress("Uploading stl...",.5);
-		this.console.value+="\nUploading stl...\n";
-	}
-	
 	// upload a ready made .gcode 
 	this.uploadGcode=function(text){
 		// create callback to give feedback and complete progress indicator
@@ -239,12 +199,6 @@ VisPrinter=new function(){
 		VisPrinter.progress("Uploading gcode...",.5);
 	}
 
-	// show edit.html for the currently selected config
-	this.editConfig=function(){
-		var config=document.getElementById('config').value;
-		window.open('edit.html?'+config);
-	}
-	
 	// issue G1 gcode to send printer to location given by goto form
 	this.goto=function(form){
 		var cmd="G1 X"+form.X.value+" Y"+form.Y.value+" Z"+form.Z.value+" E"+form.E.value;
@@ -260,7 +214,7 @@ VisPrinter=new function(){
 	this.print=function(){
 		var session=this.getSession();
 
-		this.console.value+="\nPrinting...\n";
+		this.console.value+="\nPrinting... (this might take a few seconds to start)\n";
 		// issue pronsole command
 		this.cmd("load tmp/"+session+".gcode\nprint");
 	}
@@ -290,7 +244,7 @@ VisPrinter=new function(){
 		this.gcode=gcode;
 
 		// create a line mesh
-		var mesh = new GL.Mesh({ triangles: false, lines: true, colors: true });
+		var mesh = new GL.Mesh({ triangles: false, lines: true, colors: false });
 
 		// parse gcode and add lines
 		var pos={'X':0.0, 'Y':0.0, 'Z':0.0};
@@ -301,6 +255,8 @@ VisPrinter=new function(){
 			var line=lines[i];
 			var parts=line.split(" ");
 			if(parts[0]=='G1'){
+				var epos=line.indexOf('E',0);
+				//alert(epos+'\n'+line)
 				for(var j=1; j<parts.length; j++){
 					var part=parts[j];
 					var axis=part.substr(0,1);
@@ -309,10 +265,12 @@ VisPrinter=new function(){
 				}
 				mesh.vertices.push([pos.X-100, pos.Y-100, pos.Z]);
 				if(index>0) {
-					mesh.lines.push([index-1, index]);
-					mesh.colors.push([1,0,0]);
+					if(epos>=15){
+						mesh.lines.push([index-1, index]);
+						//mesh.colors.push(1,0,0,1);
+					}
 				}
-				index++;		
+				index++;
 			}
 		}
 		mesh.compile();
@@ -335,55 +293,75 @@ VisPrinter=new function(){
 	// to retry connect indipendently of the check polling so we can poll the state 
 	// as often we like to stay responsive for printerless use (eg. slicing).
 	this.check=function(){
-	
 		// issue /check request, calling onCheck on response
 		VisPrinter.httpGet('printer',function(result){
 			VisPrinter.onCheck(result);
 		});
 
-
 		if(!this.connected) {
 			// not connected to the printer, try to connect and check again in 10s
-			this.connect();
-			window.setTimeout(function(e){VisPrinter.check();},10000);
-		}
-		else
+			window.setTimeout(function(e){VisPrinter.check();},1000);
+		} else {
 			// the printer is connected, check again in one second
 			window.setTimeout(function(e){VisPrinter.check();},1000);
+		}
 	}
 
 	// printer output response handler
 	// refreshes the this.connected state and corresponding UI
 	// adds messages to the console textarea
 	this.onCheck=function(result){
-		var lines=result.split('\n')			
-		for(var i=0; i<lines.length; i++){
-			var line=lines[i];
-			if(!line) continue;
-			if(line.indexOf('ok ')==0) {
-				// we received an 'ok', so consider the printer connected
-				this.connected=true;
-				document.getElementById('connection'	 ).innerHTML='connected';
-				document.getElementById('connectionStyle').innerHTML='';
-			}
-			// echo printer output to console textarea
-			this.console.value+=line+"\n";
+			var lines=result.split('\n')			
+			for(var i=0; i<lines.length; i++){
+				var line=lines[i];
+				if(!line) {
+					continue;
+				} else if(line.substr(0,4) == "ok T"){ // normal temp m105 feedback
+					var exa = document.getElementById('exa');
+					var ext = document.getElementById('ext');
+					var bea = document.getElementById('bea');
+					var bet = document.getElementById('bet');
+					var pieces=line.split(" ");
+					exa.innerHTML=pieces[1].substr(2);
+					ext.innerHTML=pieces[2].substr(1);
+					bea.innerHTML=pieces[3].substr(2);
+					bet.innerHTML=pieces[4].substr(1);
+					bea.className="actual_temp";
+					exa.className="actual_temp";
+				} else if(line.substr(0,2) == "T:"){ // bed or extruder heating alternate feedback					
+					var exa = document.getElementById('exa');
+					var ext = document.getElementById('ext');
+					var bea = document.getElementById('bea');
+					var bet = document.getElementById('bet');
+					var pieces=line.split(" ");
+					exa.innerHTML=pieces[0].substr(2);
+					if(pieces[2].substr(0,1)=='B'){
+						bea.innerHTML=pieces[2].substr(2);
+						bea.className="active_temp";
+						exa.className="actual_temp";
+					} else {
+						exa.className="active_temp";
+						bea.className="actual_temp";
+					}
+				} else if(line.substr(0,2) == 'X:'){ // m114 feedback
+					var xpos = document.getElementById('xpos');
+					var ypos = document.getElementById('ypos');
+					var zpos = document.getElementById('zpos');
+					var pieces=line.split(":");
+					xpos.innerHTML=pieces[1].substr(0,pieces[1].length-1);
+					ypos.innerHTML=pieces[2].substr(0,pieces[2].length-1);
+					zpos.innerHTML=pieces[3].substr(0,pieces[3].length-1);
+				} else if(line.indexOf('ok ')==0){ //|| (line.substr(0,4) == "ok T")) {
+					// we received an 'ok', so consider the printer connected
+					this.connected=true;
+					document.getElementById('connection'	 ).innerHTML='connected';
+					document.getElementById('connectionStyle').innerHTML='';
+				} else if(line!='ok'){
+					// echo printer output to console textarea
+					this.console.value+=line+"\n";
+					this.console.scrollTop=this.console.scrollHeight;
+				}
 		}
-	}
-
-	// /config response handler
-	// fills in the config selector dropdown
-	this.onConfigs=function(response){
-		var configs=response.split("\n");
-		var select=document.getElementById('config');
-		for(var i=0; i<configs.length; i++){
-			var config=configs[i];
-			if(!config) continue;
-			var option=document.createElement('option');
-			option.value=config;
-			option.innerHTML=config.substr(config.indexOf('/')+1);
-			select.add(option);
-		}	
 	}
 
 	// request server /cancel 
@@ -409,13 +387,113 @@ VisPrinter=new function(){
 			viewer = new Viewer(viewPane);
 			viewer.showAll();
 		}
+		
 		this.console=document.getElementById('console');
 		var VisPrinter=this;
 		this.check();
 		this.checkState();
-		this.httpGet('configs',function(response){VisPrinter.onConfigs(response)});
+		load_gcode();
 	}
 }
 
+function tabs(activeTab, targetTab) {
+	// change active container
+	var containerdiv = document.getElementById('container');
+	var panels = containerdiv.getElementsByTagName('div');
+	for(var i=0; i<panels.length; i++){
+		if((panels[i].className =='panel_hidden') || (panels[i].className == 'panel_showing')){
+			panels[i].className="panel_hidden";
+		}
+	}
+	document.getElementById(targetTab).className="panel_showing";
+	// change active tab
+	var tabdiv = document.getElementById('tabs');
+	var tabs = tabdiv.getElementsByTagName('div');
+	for(var i=0; i<tabs.length; i++){
+		tabs[i].className="inactive_tab";
+	}
+	document.getElementById(activeTab).className="active_tab";
+	viewer.resize();
+}
 
+function mov(axis, distance) {
+	var feed = '';
+	VisPrinter.cmd('G91');
+	if(axis == 'Z') {
+		feed = '300';
+	} else {
+		feed = '3000';
+	}
+	window.setTimeout(function(){VisPrinter.cmd('G1 '+axis+distance+' F'+feed)},50);
+}
+
+function ext(direction, distance, feed) {
+	VisPrinter.cmd('G91');
+	if(direction == 'retract'){
+		window.setTimeout(function(){VisPrinter.cmd('G1 E-'+distance+' F'+feed)},50);
+	} else {
+		window.setTimeout(function(){VisPrinter.cmd('G1 E'+distance+' F'+feed)},50);
+	}
+}
+
+function heat(heater, temp) {
+	if(heater == 'bed'){
+		VisPrinter.cmd('M140 S'+parseInt(temp));
+	} else {
+		VisPrinter.cmd('M104 S'+parseInt(temp));
+	}
+}
+
+function fullscreen(){
+	if((screen.availWidth == window.innerWidth) && (screen.height == window.innerHeight)){
+		cancelFullscreen();
+	} else {
+		launchFullScreen(document.documentElement);
+	}
+}
+
+// Find the right method, call on correct element
+function launchFullScreen(element) {
+  if(element.requestFullScreen) {
+    element.requestFullScreen();
+  } else if(element.mozRequestFullScreen) {
+    element.mozRequestFullScreen();
+  } else if(element.webkitRequestFullScreen) {
+    element.webkitRequestFullScreen();
+  }
+}
+
+function cancelFullscreen() {
+  if(document.cancelFullScreen) {
+    document.cancelFullScreen();
+  } else if(document.mozCancelFullScreen) {
+    document.mozCancelFullScreen();
+  } else if(document.webkitCancelFullScreen) {
+    document.webkitCancelFullScreen();
+  }
+}
+
+function load_gcode(){
+	VisPrinter.httpGet('gcode',function(file){
+		if(file.search('Error response')==-1){
+			var sessions = VisPrinter.getSession();
+			if(sessions == localStorage.session){
+				var filename = localStorage.gcode_name
+			} else {
+				var filename = sessions+'.gcode';
+			}
+			document.getElementById('filename').innerHTML=filename;
+			VisPrinter.console.value+='\n>Loaded previous file '+filename;
+			if(confirm('Produce 3D gcode preview of '+filename+' ?')== true){
+				document.getElementById('gcode_name').innerHTML='<i>working...</i>';
+				VisPrinter.onSliced(file);
+				document.getElementById('gcode_name').innerHTML=filename;
+				VisPrinter.console.value+='\n>Finished producing 3D g-code preview for '+filename;
+				tabs('3D_tab','3D');
+			}
+		} else {
+			alert('No previous file stored on server, please upload a g-code file.');
+		}
+	})
+}
 
