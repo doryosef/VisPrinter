@@ -30,6 +30,8 @@ class printcore():
         self.clear=0 #clear to send, enabled after responses
         self.online=False #The printer has responded to the initial command and is active
         self.printing=False #is a print currently running, true if printing, false if paused
+        self.starttime=0
+        self.offset=0
         self.mainqueue=[] 
         self.priqueue=[]
         self.queueindex=0
@@ -168,6 +170,8 @@ class printcore():
         if(self.printing or not self.online or not self.printer):
             return False
         self.printing=True
+        self.starttime=time.time()
+        self.offset=0
         self.mainqueue=[]+data
         self.lineno=0
         self.queueindex=0
