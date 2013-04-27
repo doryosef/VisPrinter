@@ -126,7 +126,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
         if printer.p.printing:
-            progress="Printing... "+str(int(99*float(printer.p.queueindex)/len(printer.p.mainqueue))+1)+" "+str(int(time.time())-int(printer.p.starttime))
+            progress="Printing... "+str(int(99*float(printer.p.queueindex)/len(printer.p.mainqueue))+1)+" "+str(int(time.time())-int(printer.p.starttime))+" "+str(int(printer.p.offset))
 	state={
 		'online':printer.p.online,        # if the printer is connected
 		'printing': printer.p.printing,   # if the printer is currently printing
