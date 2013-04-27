@@ -1,3 +1,10 @@
+	body {
+		width:100%;
+		height:100%;
+		-moz-user-select: none;
+		-webkit-user-select: none;
+		
+	}
 	td{
 		padding: 0px; 
 		margin: 0px;
@@ -15,81 +22,68 @@
 	select, option, input, button{
 		color: white;
 		background-color: #333;
-		border: none;
-/*		width: 100px;*/
+		padding:10px;
+		text-align:center;
 	}
-	.logo{
-		position: absolute; 
-		bottom: 10px;
-		left: 10px;
-		font-size: 12px;
+	input {
+		background-color: #222;
+		font-weight:900;
+		padding:2px;
+		max-width:280px;
+	}
+	button, .graph_button{
+		border:2px solid #333;
+	}
+	button:hover, .graph_button:hover{
+		border:2px solid black;
 	}
 	.view{
-		position: absolute; 
-		top: 0px;
-		left: 0px;
-		right: 400px;
-		bottom: 0px;
+		position:absolute;
+		top:0;
+		left:0;
+		right:0;
+		bottom:0;
 	}
 	canvas{
-		position: absolute;
-		left: 0px;
-		top: 0px;
-		right: 0px;
-		bottom: 0px;
-	}
-	.menuPane{
-		position: absolute;
-		right: 0px;
-		bottom: 0px;
-		height: 350px;
-		width: 380px;
-		border-top: 3px solid #fff;
-		font-size:13px;
-		padding: 10px;
-		line-height: 18px;
+		width:100%;
+		height:100%;
 	}
 	a{
 		color:#fff;
 	}
 	h2{
 	    font-size: 11px;
-	    color: #999;
-	    margin: 2px;
-	    padding: 0px;	    
+	    color: white;
+	    margin: 3px 2px;
+	    padding: 0px;
+		text-align:left;
 	}
 	form{
-	    margin: 2px;
+	    margin: 3px;
 	    background-color: #111;
 	}
-	.treePane{
-		position: absolute;
-		right: 0px;
-		top: 0px;
-		bottom: 370px;
-		width: 400px;
-		overflow: hidden;
-	}
 	.console{
-		height: 100%;
-		width: 100%;
+		position:absolute;
+		top:0;
+		bottom:70px;
+		left:20px;
+		right:0;
 		margin: 0px;
-		padding: 0px;
+		padding: 0 0 0 20px;
 		border:0px;
 		color: #fff;
 		background-color: #000;
+		font-size:8pt;
 	}
 
 	#progress{
 		background-color:black;
 		font-size: 12px;
-		position: absolute;
 		width: 0%;
 		height: 20px;
 		width: 100%;
-		left: 0px;
-		bottom: 0px;
 		display: none;
+		color:green;
 	}
 	#progress .cancel{
 		color: #fff;
@@ -111,9 +105,146 @@
 		top:   2px;
 		bottom:2px;
 		background-color: #fff;
+		z-index:4;
 	}
 	#progressName{
-		color: #000;
+		color: green;
+		position:absolute;
+		top:3px;
+		bottom:0;
+		left:0;
+		right:0;
+		z-index:5;
+		text-align:center;
+		font-weight:bold;
 		text-decoration: blink;
 	}
+	#tabs {
+		width:100%;
+		height:50px;
+	}
+	#tabs div {
+		float:left;
+		width:33%;
+		padding:15px 0 0;
+		cursor:pointer;
+		text-align:center;
+	}
+	#container {
+		clear:both;
+		position:absolute;
+		top:50px;
+		bottom:0;
+		left:0;
+		right:0;
+		padding-left:10px;
+		overflow:hidden;
+	}
+	.active_tab {
+		font-weight:bolder;
+		color:white;
+	}
+	.inactive_tab {
+		font-weight:normal;
+		color:#888;
+	}
+	.panel_showing {
+		visibility:visible;
+		height:100%;
+		width:100%;
+		position:absolute;
+		top:0;
+		left:0;
+		right:0;
+		bottom:0;
+	}
+	.panel_hidden {
+		visibility:hidden;
+		position:relative;
+	}
+	
+	#left {
+		position:absolute;
+		top:0;
+		bottom:25px;
+		right:300px;
+		left:0;
+	}
+	#right {
+		position:absolute;
+		top:0;
+		bottom:25px;
+		right:0;
+		width:300px;
+	}
+	#bottom {
+		position:absolute;
+		bottom:0;
+		right:0;
+		left:0;
+		height:25px;
 
+	}
+	#clearlog {
+		position:absolute;
+		bottom:5px;
+		right:5px;
+		z-index:2;
+	}
+	
+	#ex_temp, #bed_temp {
+		font-size:38px;
+		text-align:center;
+	}
+	.actual_temp {
+		color:#CCC;
+	}
+	.active_temp {
+		color:red;
+	}
+	#move_controls, #temp_controls, #extrusion_controls {
+	}
+
+	#move_controls td, #temp_controls td, #extrusion_controls td{
+		padding:5px;
+		text-align:center;
+	}
+	.graph_button {
+		color: white;
+		background-color: #333;
+		min-width:29px;
+		font-size:9.5px;
+		cursor:default;
+	}
+	.graph_button_alt {
+		color: white;
+		background-color: #333;
+		min-width:30px;
+		font-size:14px;
+		cursor:default;
+	}
+	#reset {
+		color:#F33;
+		font-weight:bold;
+	}
+	.posi {
+		float:left;
+		width:33%;
+	}
+	/*#log, #3D, #move {
+		position:absolute;
+		top:0;
+		bottom:0;
+		left:0;
+		right:0;
+	}*/
+	#manual_command {
+		position:absolute;
+		height:60px;
+		bottom:0;
+		right:0;
+		left:20px;
+	}
+	#move {
+		margin-left:20px;
+	}
