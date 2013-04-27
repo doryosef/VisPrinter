@@ -240,6 +240,7 @@ class printcore():
         #callback for printing done
         
     def _sendnext(self):
+        global time
         if(not self.printer):
             return
         while not self.clear:
@@ -260,6 +261,9 @@ class printcore():
             return
         if(self.printing and self.queueindex<len(self.mainqueue)):
             tline=self.mainqueue[self.queueindex]
+            if(self.offset == 0):
+                if("G1" in tline and "X" in tline and "E" in tline):
+                    self.offset=time.time()-self.starttime
             tline=tline.split(";")[0]
             if(len(tline)>0):
                 self._send(tline,self.lineno,True)
