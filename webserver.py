@@ -15,14 +15,14 @@ import cgi
 import Cookie
 import BaseHTTPServer
 import SocketServer
-
+import time
 import pronsole
 import settings
 
 # our pronterface instance
 printer=pronsole.pronsole()
 #progress indicator state
-progress="Idle 0"
+progress="Idle 0 0"
 # running processes (eg. Slic3r.pl)
 processes=[]
 # printer output buffer
@@ -48,12 +48,13 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 	tmp_buffer=recv_buffer
         recv_buffer=[]
         for line in tmp_buffer:
-        	self.wfile.write(line)
+            self.wfile.write(line)
 
     # serve a file from our folder
     def serve_file(self,url_path):
         # map URL path to file in our directory
         file_path=os.path.abspath('./'+url_path)
+        print file_path
         # prevent the client from accessing any file outside our directory
         server_path=os.path.abspath('.')
         if not file_path.startswith(server_path):
@@ -112,14 +113,20 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 		process.kill()
 	if printer.p.printing:
 		printer.onecmd('pause')
+		printer.onecmd('M104 S0')
+		printer.onecmd('M140 S0')
+		printer.p.paused=False
+		printer.p.printing=False
+		
     
     # serve some state for UI feedback
     def serve_state(self,session_id):
 	global progress
+	global time
         self.send_response(200)
         self.end_headers()
-	if printer.p.printing:
-		progress="Printing... "+str(int(99*float(printer.p.queueindex)/len(printer.p.mainqueue))+1)
+        if printer.p.printing:
+            progress="Printing... "+str(int(99*float(printer.p.queueindex)/len(printer.p.mainqueue))+1)+" "+str(int(time.time())-int(printer.p.starttime))
 	state={
 		'online':printer.p.online,        # if the printer is connected
 		'printing': printer.p.printing,   # if the printer is currently printing
@@ -129,7 +136,26 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 	}
 	_json=json.dumps(state, indent=4)
 	self.wfile.write(_json)
- 
+
+    # serve temp
+    def serve_temp(self):
+        global progress
+        self.send_response(200)
+        self.end_headers()
+        if printer.p.online:
+            _json=json.dumps(printer.onecmd('m105'), indent=4)
+            self.wfile.write(_json)
+
+    # serve position
+    def serve_posi(self):
+        global progress
+        self.send_response(200)
+        self.end_headers()
+        if printer.p.online:
+            _json=json.dumps(printer.onecmd('m114'), indent=4)
+            self.wfile.write(_json)
+
+        
     # parse a line of slic3r's stdout output and set progress indicator accordingly
     # currently only the 'filling layer' phase is tracked, that usually makes up most of the slicing time. 
     # TODO can we provide an estimation of progress at the earlier 'geometry' phase too?
@@ -241,6 +267,12 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 self.serve_slic3r(session_id,url_params.get('config')[0])
             elif url_parts.path=='/state':
                 self.serve_state(session_id)
+            elif url_parts.path=='/posi':
+                self.serve_posi()
+            elif url_parts.path=='/temp':
+                self.serve_temp()
+            elif url_parts.path=='/gcode':
+                self.serve_file('tmp/'+session_id+'.gcode')
             elif url_parts.path=='/cancel':
                 self.serve_cancel(session_id)
             elif url_parts.path=='/upload':
