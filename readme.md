@@ -2,7 +2,7 @@
 
 This is a highly modified fork of dronus' web front end for Printrun. Most of the framework was undertaken by dronus, with development here focussing on adding functionality and a GUI that works on a 800x480px touch screen.
 
-#Alterations/Changes/Improvements
+##Alterations/Changes/Improvements
 
 -Removal of slicing interface/stl rendering
 
@@ -34,17 +34,17 @@ This is a highly modified fork of dronus' web front end for Printrun. Most of th
 
 -Added linux bash script to start python server and open chromium to correct page.
 
-#Intended Usage
+##Intended Usage
 
 The specific application in mind was the control of a Solidoodle 2 printer wit a Pengpod700. The pengpod runs the Printrun webserver and has a samba share where g-code can be dropped from other computers on the network. The prints can then be started/monitored on the Pengpod. Other computers on the network can still connect and control the printer.
 
-#Requirements
+##Requirements
 
 -Modern browser capable of HTML5 and webGL.
 
 -Device with python installed and capable of connecting to a reprap style printer via USB.
 
-#Credits
+##Credits
 
 -Based on Printrun - https://github.com/kliment/Printrun
 
@@ -56,17 +56,17 @@ The specific application in mind was the control of a Solidoodle 2 printer wit a
 
 -Further help from fsantini in setting up the pengpod and samba share.
 
-#Installation and startup (short)
+##Installation and startup (short)
 
-1. Unzip files into a location of your choice.
+Step 1. Unzip files into a location of your choice.
 
-2. Run webserver.py
+Step 2. Run webserver.py
 
-3. Direct a browser window to http://127.0.0.1:8082/index.html on that device, or http://<ip address of device>:8082/index.html from a different device.
+Step 3. Direct a browser window to http://127.0.0.1:8082/index.html on that device, or http://<ip address of device>:8082/index.html from a different device.
 
-#Installation and setup (specific and detailed for Pengpod 700)
+##Installation and setup (specific and detailed for Pengpod 700)
 
-Step 1. Install python.
+###Step 1. Install python.
 
 Open a terminal window and enter:
 
@@ -74,7 +74,7 @@ Open a terminal window and enter:
 
 This will install python automatically.
 
-Step 2. Install samba.
+###Step 2. Install samba.
 
 In a terminal window, enter:
 
@@ -82,7 +82,7 @@ In a terminal window, enter:
 
 This will install samba automatically.
 
-Step 3. Setup a samba share for g-code (with thanks to fsantini).
+###Step 3. Setup a samba share for g-code (with thanks to fsantini).
 
 In a terminal window, enter:
 
@@ -119,7 +119,7 @@ Now restart samba in the terminal by entering:
 On a windows machine, under network, 'LINARO-ALIP' or similar should appear with the gcode folder inside it.
 STL files can be sliced and processed by a more powerful computer, and then the g-code moved into this folder to be opened and printed from the pengpod
 
-Step 4. Install this repo.
+###Step 4. Install this repo.
 
 Using teminal, make a folder to store the contents of this repo:
 
@@ -138,7 +138,7 @@ sudo chmod a+rwx /home/linaro/visp/webserver.py
 sudo chmod a+rwx /home/linaro/visp/visp.sh
 ```
 
-Step 5. Make desktop shortcut.
+###Step 5. Make desktop shortcut.
 
 Create a new shortcut on the desktop, entering VisPrinter (or whatever you like) in the first popup.
 In the second popup screen, set the name as the same as previous.
@@ -148,7 +148,7 @@ Under command, enter:
 
 Click ok.
 
-Step 6. Run the shell script.
+###Step 6. Run the shell script.
 
 Click of you new shortcut to run the shell script. Select 'execute' if a popup appears the first time.
 The script will start the printer server webserver.py in a terminal window and then open chromium browser to 127.0.0.1:8082/index.html
