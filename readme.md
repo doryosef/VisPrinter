@@ -1,6 +1,11 @@
 #VisPrinter
 
-This is a highly modified fork of dronus' web front end for Printrun. Most of the framework was undertaken by dronus, with development here focussing on adding functionality and a GUI that works on a 800x480px touch screen.
+This is a highly modified fork of dronus' web front end for Printrun. Most of the framework was undertaken by dronus, with development here focusing on adding functionality and a GUI that works on a 800x480px touch screen.
+
+![onpengpod](http://img39.imageshack.us/img39/8515/05printing.jpg)
+
+
+![controls](http://img59.imageshack.us/img59/9757/02controls.jpg)
 
 ##Alterations/Changes/Improvements
 
