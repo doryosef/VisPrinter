@@ -99,7 +99,7 @@ VisPrinter=new function(){
 
 	// set progress indicator to given value and caption
 	// a value of 0 (nothing in progress) and 1 (completed) hides the indicator.
-	this.progress=function(caption, p, time){
+	this.progress=function(caption, p, time, offset){
 		var indic		 =document.getElementById('progress');
 		var bar		   =document.getElementById('progressBar');
 		var captionElement=document.getElementById('progressName');
@@ -114,17 +114,23 @@ VisPrinter=new function(){
 			t.setSeconds(time);
 			string+=' | '+t.toTimeString().substr(0,8)+' elapsed';
 		}
-		if(parseInt(p*100)>1){
+		if(offset!=0 && (parseInt(p*100)>2)){
 			var t = new Date(1970,0,1);
 			if(percent==p){
 				seconds--;
 				t.setSeconds(seconds);
 			} else {
-				seconds=time/p-time;
+				seconds=((time-offset)/p)-(time-offset);
+				//alert('time: '+time+'\noffset: '+offset+'\ncalculated seconds: '+seconds);
 				t.setSeconds(seconds);
 				percent=p;
 			}				
 			string+=' | '+t.toTimeString().substr(0,8)+' remaining';
+			var t = new Date(1970,0,1);
+			var total = parseInt(time)+parseInt(seconds);
+			t.setSeconds(total);
+			//alert('t: '+time+' + s: '+seconds+' = '+time
+			string+=' | '+t.toTimeString().substr(0,8)+' total predicted';
 		} else {
 			
 		}
@@ -179,10 +185,12 @@ VisPrinter=new function(){
 		var caption=parts[0];
 		var progress=parseInt(parts[1]);
 		var time=0;
+		var offset=0;
 		if(progress > 0){
 			time=parts[2];
+			offset=parts[3];
 		}
-		this.progress(caption, progress/100, time);
+		this.progress(caption, progress/100, time, offset);
 	}
 
 	// upload a ready made .gcode 
