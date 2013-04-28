@@ -1,6 +1,7 @@
 var percent = 0;
 var seconds = 0;
 var offset = 0;
+var gltest;
 // get a single cookie from this domains cookies
 function getCookieValue(cookieName)
 {
@@ -46,12 +47,14 @@ VisPrinter=new function(){
 			var suffix=file.name.substring(file.name.lastIndexOf('.'));
 			if(suffix=='.gcode') {
 				VisPrinter.uploadGcode(text);
-				if(confirm('Produce 3D gcode preview of '+file.name+' ?')==true){
-					document.getElementById('gcode_name').innerHTML='<i>working...</i>';
-					VisPrinter.onSliced(text);
-					document.getElementById('gcode_name').innerHTML=localStorage.gcode_name;
-					VisPrinter.console.value+='\n>Finished producing 3D g-code preview for '+filename;
-					tabs('3D_tab','3D');
+				if(gltest!=null){
+					if(confirm('Produce 3D gcode preview of '+file.name+' ?')==true){
+						document.getElementById('gcode_name').innerHTML='<i>working...</i>';
+						VisPrinter.onSliced(text);
+						document.getElementById('gcode_name').innerHTML=localStorage.gcode_name;
+						VisPrinter.console.value+='\n>Finished producing 3D g-code preview for '+filename;
+						tabs('3D_tab','3D');
+					}
 				}
 			} else {
 				alert('Bad file type '+suffix);
@@ -87,9 +90,9 @@ VisPrinter=new function(){
 	// relates to serve_state in webserver.py
 	this.httpGet=function(path,callback){
 		var req = new XMLHttpRequest();
-		req.overrideMimeType ( "text / plain"); 
 		req.onreadystatechange = function () {
 			if (req.readyState == 4) {
+				//alert(req.responseText);
 				callback(req.responseText);
 			}
 		};
@@ -235,7 +238,7 @@ VisPrinter=new function(){
 		var console=document.getElementById('console');
 		if(!callback) console.value+="\n>"+cmd+"\n";
 		if(!callback) callback=function(response){VisPrinter.onCmd(response)};
-		this.httpGet('pronsole?cmd='+encodeURIComponent(cmd), callback);
+		this.httpGet('pronsole?cmd='+encodeURI(cmd), callback);
 	}
 	
 	// default callback for pronsole commands 
@@ -390,17 +393,30 @@ VisPrinter=new function(){
 	// the html need to provide several UI elements and classes
 	// see index.html 
 	this.attach=function(){
-		var viewPane=document.getElementById('view');
-		if(viewPane) {
-			viewer = new Viewer(viewPane);
-			viewer.showAll();
+		var canvas = document.getElementById('gltest');
+		try { gltest = canvas.getContext("webgl"); }
+    	catch (x) { gltest = null;}
+
+   	 	if (gltest == null) {
+        	try { gltest = canvas.getContext("experimental-webgl");}
+        	catch (x) { gltest = null;}
+    	}
+		if(gltest != null){
+			var viewPane=document.getElementById('view');
+			if(viewPane) {
+				viewer = new Viewer(viewPane);
+				viewer.showAll();
+			}
+		} else {
+			alert('Webgl not supported!\n3D g-code preview disabled. Please upgrade to a newer browser:\nhttp://get.webgl.org');
 		}
+		
 		
 		this.console=document.getElementById('console');
 		var VisPrinter=this;
 		this.check();
 		this.checkState();
-		load_gcode();
+		//load_gcode();
 	}
 }
 
@@ -421,7 +437,9 @@ function tabs(activeTab, targetTab) {
 		tabs[i].className="inactive_tab";
 	}
 	document.getElementById(activeTab).className="active_tab";
-	viewer.resize();
+	if(gltest!=null){
+		viewer.resize();
+	}
 }
 
 function mov(axis, distance) {
@@ -492,12 +510,14 @@ function load_gcode(){
 			}
 			document.getElementById('filename').innerHTML=filename;
 			VisPrinter.console.value+='\n>Loaded previous file '+filename;
-			if(confirm('Produce 3D gcode preview of '+filename+' ?')== true){
-				document.getElementById('gcode_name').innerHTML='<i>working...</i>';
-				VisPrinter.onSliced(file);
-				document.getElementById('gcode_name').innerHTML=filename;
-				VisPrinter.console.value+='\n>Finished producing 3D g-code preview for '+filename;
-				tabs('3D_tab','3D');
+			if(gltest!=null){
+				if(confirm('Produce 3D gcode preview of '+filename+' ?')== true){
+					document.getElementById('gcode_name').innerHTML='<i>working...</i>';
+					VisPrinter.onSliced(file);
+					document.getElementById('gcode_name').innerHTML=filename;
+					VisPrinter.console.value+='\n>Finished producing 3D g-code preview for '+filename;
+					tabs('3D_tab','3D');
+				}
 			}
 		} else {
 			alert('No previous file stored on server, please upload a g-code file.');
