@@ -52,9 +52,11 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     # serve a file from our folder
     def serve_file(self,url_path):
+        print url_path
+        if url_path=='/':
+            url_path='/index.html'
         # map URL path to file in our directory
         file_path=os.path.abspath('./'+url_path)
-        print file_path
         # prevent the client from accessing any file outside our directory
         server_path=os.path.abspath('.')
         if not file_path.startswith(server_path):
@@ -63,6 +65,11 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         f = open(file_path)
         # send headers
         self.send_response(200)
+        # establish correct mime type
+        if "css" in url_path:
+            self.send_header('Content-Type','text/css')
+        elif ".js" in url_path:
+            self.send_header('Content-Type','text/javascript')
         # establish a random session cookie 
         if not "Cookie" in self.headers or self.headers.get('Cookie').find('session=')==-1:
             self.send_header('Set-Cookie','session='+str(random.randint(0,0xFFFFFFFF)));
