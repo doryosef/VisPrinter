@@ -416,7 +416,7 @@ VisPrinter=new function(){
 		var VisPrinter=this;
 		this.check();
 		this.checkState();
-		//load_gcode();
+		load_gcode();
 	}
 }
 
