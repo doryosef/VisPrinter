@@ -39,13 +39,19 @@ This is a highly modified fork of dronus' web front end for Printrun. Most of th
 
 -Added linux bash script to start python server and open chromium to correct page.
 
+-Added detection of .js and .css requests to serve correct MIME type. This previously broke styling on IE.
+
+-Removed the need to have /index.html in broweser address.
+
+-Added detection of webGL, disabling 3D g-code preview for affected users. Hence, older browsers can still control the printer.
+
 ##Intended Usage
 
 The specific application in mind was the control of a Solidoodle 2 printer wit a Pengpod700. The pengpod runs the Printrun webserver and has a samba share where g-code can be dropped from other computers on the network. The prints can then be started/monitored on the Pengpod. Other computers on the network can still connect and control the printer.
 
 ##Requirements
 
--Modern browser capable of HTML5 and webGL.
+-Modern browser capable of HTML5. WebGL compatibility required for 3D g-code previews.
 
 -Device with python installed and capable of connecting to a reprap style printer via USB.
 
@@ -67,7 +73,7 @@ Step 1. Unzip files into a location of your choice.
 
 Step 2. Run webserver.py
 
-Step 3. Direct a browser window to http://127.0.0.1:8082/index.html on that device, or http://<ip address of device>:8082/index.html from a different device.
+Step 3. Direct a browser window to http://127.0.0.1:8082/ on that device, or http://<ip address of device>:8082/ from a different device.
 
 ##Installation and setup (specific and detailed for Pengpod 700)
 
