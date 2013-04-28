@@ -10,11 +10,12 @@
 	<script type="text/javascript" src="VisPrinter.js"></script>
 	<link rel="stylesheet" type="text/css" href="base.css">	
 </head>
-<body onselectstart='return false'>
-<style id=connectionStyle></style>
-<style id=slicingStyle>.sliced{visibility: hidden;}</style>
-<style id=stateStyle></style>
-<div id="left">
+<body onLoad="VisPrinter.attach();">
+<canvas id="gltest" style="position:absolute;width:0px;height:0px;"></canvas>
+<style id='connectionStyle'></style>
+<style id='slicingStyle'>.sliced{visibility: hidden;}</style>
+<style id='stateStyle'></style>
+<div id="left" onselectstart='return false'>
 	<div id="tabs">
         <div id="move_tab" class="active_tab" onClick="tabs('move_tab','move'); return false;">controls</div>
         <div id="3D_tab" class="inactive_tab" onClick="tabs('3D_tab','3D'); return false;">3D g-code: <span id="gcode_name"><i>none</i></span></div>
@@ -44,7 +45,6 @@
                             <td class="graph_button" onClick="document.heater.t_bed.value=parseInt(document.heater.t_bed.value)-1;if(document.heater.t_bed.value<1)document.heater.t_bed.value=0;">-1</td>
                             <td class="graph_button" onClick="document.heater.t_bed.value=parseInt(document.heater.t_bed.value)+1">+1</td>
                             <td class="graph_button" onClick="document.heater.t_bed.value=parseInt(document.heater.t_bed.value)+10">+10</td></tr>
-                            <tr>
                         </tbody>
                      </table>
                 </form>
@@ -78,7 +78,7 @@
                     <table id="move_controls">
                     	<tbody>
                         <tr><td colspan="2" rowspan="2" class="graph_button_alt" onClick="VisPrinter.cmd('G28 X0')">home x</td><td></td><td class="graph_button" onClick="mov('Y','100')">100</td><td></td><td colspan="2" rowspan="2" class="graph_button_alt" onClick="VisPrinter.cmd('G28 Y0')">home y</td><td></td><td class="graph_button" onClick="mov('Z','-100')">100</td></tr>
-                        <tr><td></td><td class="graph_button" onClick="mov('Y','10')">10</td><td></td></td><td></td><td class="graph_button" onClick="mov('Z','-10')">10</td></tr>
+                        <tr><td></td><td class="graph_button" onClick="mov('Y','10')">10</td><td></td><td></td><td class="graph_button" onClick="mov('Z','-10')">10</td></tr>
                         <tr><td></td><td></td><td></td><td class="graph_button" onClick="mov('Y','1')">1</td><td></td><td></td><td></td><td style="width:40px;"></td><td class="graph_button" onClick="mov('Z','-1')">1</td></tr>
                         <!-- middle row -->
                         <tr>
@@ -115,10 +115,10 @@
         </div>
     </div>
 </div>
-<div id="right">
+<div id="right" onselectstart='return false'>
 	<form onSubmit="return false">
         <h2>connection</h2>
-        <span class=online style="padding-left:20px;color:green;">&#10003</span><span class=not_online style="color:red;">X</span>
+        <span class=online style="padding-left:20px;color:green;">&#10003;</span><span class=not_online style="color:red;">X</span>
         <button class="online" onClick="VisPrinter.cmd('disconnect')"><span style="font-size:10px;">disconnect</span></button>
         <button class="not_online" onClick="VisPrinter.cmd('connect')"><span style="font-size:10px;">connect</span></button>
         <button class="online" onClick="VisPrinter.cmd('reset')"><span id="reset">reset</span></button>
@@ -139,7 +139,7 @@
     </form>
 	<form name="gcode" onSubmit="return false">
         <h2>load gcode</h2>
-        <input caption=Import name=stl type=file onChange="VisPrinter.load(this.files[0])">
+        <input name=stl type=file onChange="VisPrinter.load(this.files[0])">
     </form>
     <!--
     <form onSubmit="return false">
@@ -164,7 +164,7 @@
      </form>
 
 </div>
-<div id="bottom">
+<div id="bottom" onselectstart='return false'>
 	<div id="progress" class="online printing">
     	<div><span id=progressName></span>
     		<div id=progressBar>
@@ -174,7 +174,7 @@
     </div>
 </div>
 	<script>
-		VisPrinter.attach();
+	//	VisPrinter.attach();
 	</script>
 </body>
 </html>
