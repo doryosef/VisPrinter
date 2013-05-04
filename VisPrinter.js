@@ -414,6 +414,7 @@ VisPrinter=new function(){
 		
 		this.console=document.getElementById('console');
 		var VisPrinter=this;
+		restoreValues();
 		this.check();
 		this.checkState();
 		load_gcode();
@@ -525,3 +526,34 @@ function load_gcode(){
 	})
 }
 
+function testStorage(){
+	try {
+		localStorage.setItem('foo','bar');
+        localStorage.removeItem('foo');
+		return true;
+	} catch(e){
+		return false;
+	}
+}
+
+function restoreValues(){
+	var ext = document.heater.t_extruder;
+	var bet = document.heater.t_bed;
+	var dis = document.extrusion.distance;
+	var fee = document.extrusion.feed;
+	if(testStorage()==true){
+		if(localStorage.stored=='yes'){
+			ext.value = localStorage.ext;
+			bet.value = localStorage.bet;
+			dis.value = localStorage.dis;
+			fee.value = localStorage.fee;
+		} else {
+			localStorage.stored='yes';
+			localStorage.ext = 215;
+			localStorage.bet = 115;
+			localStorage.dis = 10;
+			localStorage.fee = 100;
+		}
+	}
+	
+}
