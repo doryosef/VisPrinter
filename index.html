@@ -36,15 +36,15 @@
                             <td class="graph_button_alt" onClick="heat('bed',document.heater.t_bed.value)">set</td>
                             <td class="graph_button_alt" onClick="VisPrinter.cmd('M140 S0')">off</td></tr>
                             
-                            <tr><td class="graph_button" onClick="document.heater.t_extruder.value=parseInt(document.heater.t_extruder.value)-10;if(document.heater.t_extruder.value<1)document.heater.t_extruder.value=0;">-10</td>
-                            <td class="graph_button" onClick="document.heater.t_extruder.value=parseInt(document.heater.t_extruder.value)-1;if(document.heater.t_extruder.value<1)document.heater.t_extruder.value=0;">-1</td>
-                            <td class="graph_button" onClick="document.heater.t_extruder.value=parseInt(document.heater.t_extruder.value)+1">+1</td>
-                            <td class="graph_button" onClick="document.heater.t_extruder.value=parseInt(document.heater.t_extruder.value)+10">+10</td>
+                            <tr><td class="graph_button" onClick="document.heater.t_extruder.value=parseInt(document.heater.t_extruder.value)-10;if(document.heater.t_extruder.value<1)document.heater.t_extruder.value=0;if(testStorage()){localStorage.ext=document.heater.t_extruder.value};">-10</td>
+                            <td class="graph_button" onClick="document.heater.t_extruder.value=parseInt(document.heater.t_extruder.value)-1;if(document.heater.t_extruder.value<1)document.heater.t_extruder.value=0;if(testStorage()){localStorage.ext=document.heater.t_extruder.value};">-1</td>
+                            <td class="graph_button" onClick="document.heater.t_extruder.value=parseInt(document.heater.t_extruder.value)+1;if(testStorage()){localStorage.ext=document.heater.t_extruder.value};">+1</td>
+                            <td class="graph_button" onClick="document.heater.t_extruder.value=parseInt(document.heater.t_extruder.value)+10;if(testStorage()){localStorage.ext=document.heater.t_extruder.value};">+10</td>
                             <td></td>
-                            <td class="graph_button" onClick="document.heater.t_bed.value=parseInt(document.heater.t_bed.value)-10;if(document.heater.t_bed.value<1)document.heater.t_bed.value=0;">-10</td>
-                            <td class="graph_button" onClick="document.heater.t_bed.value=parseInt(document.heater.t_bed.value)-1;if(document.heater.t_bed.value<1)document.heater.t_bed.value=0;">-1</td>
-                            <td class="graph_button" onClick="document.heater.t_bed.value=parseInt(document.heater.t_bed.value)+1">+1</td>
-                            <td class="graph_button" onClick="document.heater.t_bed.value=parseInt(document.heater.t_bed.value)+10">+10</td></tr>
+                            <td class="graph_button" onClick="document.heater.t_bed.value=parseInt(document.heater.t_bed.value)-10;if(document.heater.t_bed.value<1)document.heater.t_bed.value=0;if(testStorage()){localStorage.bet=document.heater.t_bed.value};">-10</td>
+                            <td class="graph_button" onClick="document.heater.t_bed.value=parseInt(document.heater.t_bed.value)-1;if(document.heater.t_bed.value<1)document.heater.t_bed.value=0;if(testStorage()){localStorage.bet=document.heater.t_bed.value};">-1</td>
+                            <td class="graph_button" onClick="document.heater.t_bed.value=parseInt(document.heater.t_bed.value)+1;if(testStorage()){localStorage.bet=document.heater.t_bed.value};">+1</td>
+                            <td class="graph_button" onClick="document.heater.t_bed.value=parseInt(document.heater.t_bed.value)+10;if(testStorage()){localStorage.bet=document.heater.t_bed.value};">+10</td></tr>
                         </tbody>
                      </table>
                 </form>
@@ -58,15 +58,15 @@
                             <td></td>
                             <td class="graph_button_alt" onClick="ext('extrude',document.extrusion.distance.value,document.extrusion.feed.value)">extrude</td></tr>
                             
-                            <tr><td class="graph_button" onClick="document.extrusion.distance.value=parseInt(document.extrusion.distance.value)-10;if(document.extrusion.distance.value<1)document.extrusion.distance.value=0;">-10</td>
-                            <td class="graph_button" onClick="document.extrusion.distance.value=parseInt(document.extrusion.distance.value)-1;if(document.extrusion.distance.value<1)document.extrusion.distance.value=0;">-1</td>
-                            <td class="graph_button" onClick="document.extrusion.distance.value=parseInt(document.extrusion.distance.value)+1">+1</td>
-                            <td class="graph_button" onClick="document.extrusion.distance.value=parseInt(document.extrusion.distance.value)+10">+10</td>
+                            <tr><td class="graph_button" onClick="document.extrusion.distance.value=parseInt(document.extrusion.distance.value)-10;if(document.extrusion.distance.value<1)document.extrusion.distance.value=0;if(testStorage()){localStorage.dis=document.extrusion.distance.value};">-10</td>
+                            <td class="graph_button" onClick="document.extrusion.distance.value=parseInt(document.extrusion.distance.value)-1;if(document.extrusion.distance.value<1)document.extrusion.distance.value=0;if(testStorage()){localStorage.dis=document.extrusion.distance.value};">-1</td>
+                            <td class="graph_button" onClick="document.extrusion.distance.value=parseInt(document.extrusion.distance.value)+1;if(testStorage()){localStorage.dis=document.extrusion.distance.value};">+1</td>
+                            <td class="graph_button" onClick="document.extrusion.distance.value=parseInt(document.extrusion.distance.value)+10;if(testStorage()){localStorage.dis=document.extrusion.distance.value};">+10</td>
                             <td></td>
-                            <td class="graph_button" onClick="document.extrusion.feed.value=parseInt(document.extrusion.feed.value)-10;if(document.extrusion.feed.value<1)document.extrusion.feed.value=0;">-10</td>
-                            <td class="graph_button" onClick="document.extrusion.feed.value=parseInt(document.extrusion.feed.value)-1;if(document.extrusion.feed.value<1)document.extrusion.feed.value=0;">-1</td>
-                            <td class="graph_button" onClick="document.extrusion.feed.value=parseInt(document.extrusion.feed.value)+1">+1</td>
-                            <td class="graph_button" onClick="document.extrusion.feed.value=parseInt(document.extrusion.feed.value)+10">+10</td>
+                            <td class="graph_button" onClick="document.extrusion.feed.value=parseInt(document.extrusion.feed.value)-10;if(document.extrusion.feed.value<1)document.extrusion.feed.value=0;if(testStorage()){localStorage.fee=document.extrusion.feed.value};">-10</td>
+                            <td class="graph_button" onClick="document.extrusion.feed.value=parseInt(document.extrusion.feed.value)-1;if(document.extrusion.feed.value<1)document.extrusion.feed.value=0;if(testStorage()){localStorage.fee=document.extrusion.feed.value};">-1</td>
+                            <td class="graph_button" onClick="document.extrusion.feed.value=parseInt(document.extrusion.feed.value)+1;if(testStorage()){localStorage.fee=document.extrusion.feed.value};">+1</td>
+                            <td class="graph_button" onClick="document.extrusion.feed.value=parseInt(document.extrusion.feed.value)+10;if(testStorage()){localStorage.fee=document.extrusion.feed.value};">+10</td>
                             <td></td>
                             <td class="graph_button_alt" onClick="ext('retract',document.extrusion.distance.value,document.extrusion.feed.value)">retract</td></tr>
                         </tbody>
