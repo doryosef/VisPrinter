@@ -167,3 +167,163 @@ If the terminal window is closed, the printer server will close also.
 If you wish to run the webserver in the background, manually execute webserver.py by itself.
 Once the webserver is running, other computers may access it through the browser. I set up the ip address of the penpod to always be the same with my router.
 In my case, I can connect from my home network at http://192.168.1.11:8082/index.html where 192.168.1.11 is the ip address of the pengpod.
+
+##Installation and setup (specific and detailed a Raspberry Pi running Arch Linux)
+
+###Step 1. Image/Install Arch Linux ARM
+
+Image an SD card with a copy of Arch Linux ARM from the Raspberry Pi website.
+
+Instructions and downloads here:
+
+http://www.raspberrypi.org/downloads
+
+Boot the pi and login to the terminal with root/root username/password.
+
+###Step 2. Update Pacman
+
+Type:
+
+```pacman -Suy```
+
+###Step 2. Configure Wifi
+
+An Edup wifi dongle is recommended for a Raspberry Pi because it requires very little power and can be run without a powered hub. Arch Linux and other distros also have built in support for its 8188CUS chipset.
+
+I found netctl easy to use in setting up my connection (when it asks if netcfg should be deleted, do it):
+
+```
+pacman -S netctl
+```
+
+The following assumes you have a WPA wifi connection:
+
+```
+cp /etc/netctl/examples/wireless-wpa /etc/netctl
+nano /etc/netctl/wireless-wpa
+```
+
+Change the description to something that you recognise.
+Change the ESSID to your wifi SSID.
+Change the key to your wifi password.
+Save and exit.
+
+Check your connection:
+
+```
+netctl start wireless-wpa
+```
+
+If it connects successfully, make it connect at boot:
+
+```
+netctl enable wireless-wpa
+```
+
+###Step 4. Make Visp directory
+
+Make a directory:
+
+```mkdir /home/visp```
+
+Change permissions:
+
+```chmod a+rwx /home/visp```
+
+###Step 5. Install Dependencies
+
+```pacman -S python2 python2-pyserial samba```
+
+This will install dependencies. Note that you should run the webserver with python2, not python, for it to run correctly.
+
+###Setp 6. Setup Samba
+
+Make a copy of default configuration file:
+
+```cp /etc/samba/smb.conf.default /etc/samba/smb.conf```
+
+Now edit the configuration file:
+
+```nano /etc/samba/smb.conf```
+
+After ```security = user``` add:
+
+```map to guest = Bad User```
+
+This will configure the samba server to be accessed without logging in.
+
+At the end of the file, add:
+
+```
+[visp]
+    path = /home/visp
+    guest ok = yes
+    browseable = yes
+    read only = no
+```
+It might also be a good idea to change the workgroup to ```WORKGROUP``` near the top of the file. 
+
+Save the file and exit (control X then yes to save).
+
+Make samba run at boot automatically:
+
+```
+systemctl enable smbd.service
+systemctl enable nmbd.service
+```
+
+Reboot now and check if the samba server starts. Try accessing it from another machine, you should have access to the visp folder.
+
+###Step 7. Install visp
+
+At this point, I used the samba share on a windows machine to download the githubzip and unzip it into the visp folder.
+
+To do it all from the linux command line:
+
+```
+cd /home/visp
+pacman -S unzip
+wget https://github.com/mlaws/VisPrinter/archive/master.zip
+unzip master.zip
+mv /home/visp/VisPrinter-master/* /home/visp
+rm -r /home/visp/VisPrinter-master
+```
+
+Fix permissions for key files:
+```
+chmod a+rwx /home/visp/tmp
+chmod a+rwx /home/visp/webserver.py
+```
+
+###Step 8. Test visp
+
+To run the webserver:
+```
+python2 /home/visp/webserver.py
+```
+If this works, you can set it to run at boot. Make a service file:
+```
+nano /etc/systemd/system/webserver.service
+```
+Now enter:
+```
+[Unit]
+Description=My script
+
+[Service]
+ExecStart=/usr/bin/my-script
+Type=oneshot
+
+[Install]
+WantedBy=multi-user.target
+```
+and save changes.
+
+Finally, enable the service at boot:
+```
+systemctl enable webserver.service
+```
+
+
+If you now power the pi from your printer's electronics (5V output), the pi will boot, connect to the network, and start the webserver when the printer is turned on. This takes approximately 15 seconds.
+
