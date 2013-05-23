@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 import sys
 import os
@@ -45,7 +45,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         global recv_buffer
         self.send_response(200)
         self.end_headers()
-	tmp_buffer=recv_buffer
+        tmp_buffer=recv_buffer
         recv_buffer=[]
         for line in tmp_buffer:
             self.wfile.write(line)
@@ -101,48 +101,48 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     # run slicer and return gcode
     def serve_slic3r(self,session_id,config):
-	global progress
-	progress="Slicing... 1"
+        global progress
+        progress="Slicing... 1"
         self.send_response(200)
         self.end_headers()
         # invoke the slic3r with progress indicator
-	self.call_monitored(settings.slicer+' --debug --load '+config+' -o tmp/'+session_id+'.gcode tmp/'+session_id+'.stl',self.monitor_slic3r)	
+        self.call_monitored(settings.slicer+' --debug --load '+config+' -o tmp/'+session_id+'.gcode tmp/'+session_id+'.stl',self.monitor_slic3r)	
 	# pass resulting .gcode file content to client
-	gcode=open('tmp/'+session_id+'.gcode', 'r').read()
-	self.wfile.write(gcode)
-	progress="Slicing... 100"
+        gcode=open('tmp/'+session_id+'.gcode', 'r').read()
+        self.wfile.write(gcode)
+        progress="Slicing... 100"
 
     # cancel any ongoing operations: printing and slicing
     def serve_cancel(self, session_id):
-	global progress 
-	for process in processes:
-		processes.remove(process)
-		process.kill()
-	if printer.p.printing:
-		printer.onecmd('pause')
-		printer.onecmd('M104 S0')
-		printer.onecmd('M140 S0')
-		printer.p.paused=False
-		printer.p.printing=False
+        global progress 
+        for process in processes:
+                processes.remove(process)
+                process.kill()
+        if printer.p.printing:
+                printer.onecmd('pause')
+                printer.onecmd('M104 S0')
+                printer.onecmd('M140 S0')
+                printer.p.paused=False
+                printer.p.printing=False
 		
     
     # serve some state for UI feedback
     def serve_state(self,session_id):
-	global progress
-	global time
+        global progress
+        global time
         self.send_response(200)
         self.end_headers()
         if printer.p.printing:
             progress="Printing... "+str(int(99*float(printer.p.queueindex)/len(printer.p.mainqueue))+1)+" "+str(int(time.time())-int(printer.p.starttime))+" "+str(int(printer.p.offset))
-	state={
+        state={
 		'online':printer.p.online,        # if the printer is connected
 		'printing': printer.p.printing,   # if the printer is currently printing
 		'paused':printer.p.paused,        # if the printer is currently paused
 		'clear':printer.p.clear,          # if the printer is clear to print
 		'progress':progress               # progress of current slicing or printing operation
 	}
-	_json=json.dumps(state, indent=4)
-	self.wfile.write(_json)
+        _json=json.dumps(state, indent=4)
+        self.wfile.write(_json)
 
     # serve temp
     def serve_temp(self):
@@ -182,19 +182,19 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     # run a command and collect stderr, stdout to a buffer for interactive access
     # this is useful to serve a progress indicator for commands providing some progress output
     def call_monitored(self, cmdline, callback):
-	global progress
+        global progress
         global processes
 	
 	# run the command
-	process=subprocess.Popen(cmdline.split(' '),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-	processes.append(process)
+        process=subprocess.Popen(cmdline.split(' '),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        processes.append(process)
         # monitor command's outputs and invoke callback for each line
-	while process.poll()==None:
-		line=process.stdout.readline()
-		if not line: break
-		callback(line)
-	if(process in processes):
-		processes.remove(process)
+        while process.poll()==None:
+                line=process.stdout.readline()
+                if not line: break
+                callback(line)
+        if(process in processes):
+                processes.remove(process)
 
     # save given data to file name
     def save_tmp(self,name,content):
@@ -283,8 +283,8 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             elif url_parts.path=='/cancel':
                 self.serve_cancel(session_id)
             elif url_parts.path=='/upload':
-		self.send_response(200)
-		self.end_headers()
+                self.send_response(200)
+                self.end_headers()
             else:
                 self.serve_file(url_parts.path)
         except Exception as e:
