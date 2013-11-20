@@ -1,5 +1,44 @@
 #VisPrinter
 
+Update 20/11/2013
+
+
+added camera module for taking picture every 30 sec 
+	* will save picture under 'tmp_img' folder
+		- add new section "cam"
+		- will save picture under 'tmp_img' folder
+		- picture name is a time stamp
+		- only when clinet ask for image the server will send it 
+		[you will have to delete the picture inside the folder from time to time...]
+		
+	* Authorization
+		- when starting the server need to pass 1 arg [user:password]
+			[for windows users just edit run.cmd]
+		- every request have to Authorize
+		
+	* all the good stuff from before 
+		- yyyaay!
+		
+	installation:
+		-  modify pronsole.py to your port & baudrate Line 193
+		- python with:  
+			opencv2
+			pyserial
+			numpy
+			
+![camera](http://imageshack.com/a/img35/9263/j2cc.jpg)
+
+
+![Authorization](http://imageshack.com/a/img51/2649/olpl.jpg)
+
+
+printing in 3d when you are not at home is very dangerous
+------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------
+
+
 This is a highly modified fork of dronus' web front end for Printrun. Most of the framework was undertaken by dronus, with development here focusing on adding functionality and a GUI that works on a 800x480px touch screen.
 
 ![onpengpod](http://img39.imageshack.us/img39/8515/05printing.jpg)
