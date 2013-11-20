@@ -4,7 +4,8 @@ Update 20/11/2013
 
 
 added camera module for taking picture every 30 sec 
-	* will save picture under 'tmp_img' folder
+
+* will save picture under 'tmp_img' folder
 		- add new section "cam"
 		- will save picture under 'tmp_img' folder
 		- picture name is a time stamp
@@ -13,7 +14,7 @@ added camera module for taking picture every 30 sec
 		
 	* Authorization
 		- when starting the server need to pass 1 arg [user:password]
-			[for windows users just edit run.cmd]
+			- [for windows users just edit run.cmd]
 		- every request have to Authorize
 		
 	* all the good stuff from before 
@@ -21,6 +22,7 @@ added camera module for taking picture every 30 sec
 		
 	installation:
 		-  modify pronsole.py to your port & baudrate Line 193
+		
 		- python with:  
 			opencv2
 			pyserial
