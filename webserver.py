@@ -18,6 +18,9 @@ import SocketServer
 import time
 import pronsole
 import settings
+import base64
+import StringIO
+import cv2
 
 # our pronterface instance
 printer=pronsole.pronsole()
@@ -27,12 +30,19 @@ progress="Idle 0 0"
 processes=[]
 # printer output buffer
 recv_buffer=[]
+# camera module
+camera = cv2.VideoCapture(0)
 
 # install printer output dissector
 def recv_printer(line):
     global recv_buffer
     recv_buffer.append(line)
 printer.recvlisteners.append(recv_printer)
+
+# getting the image from the module
+def get_image():
+ retval, im = camera.read()
+ return im
 
 # server request handler
 class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
@@ -50,6 +60,15 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         for line in tmp_buffer:
             self.wfile.write(line)
 
+    #capture the image
+    def cam_capture(self,file_name):
+        print("image capture name: "+file_name)
+        for i in xrange(30):
+            temp = get_image()
+        print("Taking image...")
+        camera_capture = get_image()
+        cv2.imwrite("tmp_img\\"+file_name, camera_capture)
+         
     # serve a file from our folder
     def serve_file(self,url_path):
         print url_path
@@ -239,12 +258,36 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     # handle GET request by general serve_request()
     def do_GET(self):
-        self.serve_request()
+        self.check_authentication()
         
     # handle POST request by general serve_request()
     def do_POST(self):
-        self.serve_request()
-        
+        self.check_authentication()
+
+    # chek authentication user & password
+    def check_authentication(self):
+        global keyAuth
+        if self.headers.getheader('Authorization') == None:
+            self.do_AUTHHEAD()
+            self.wfile.write('no auth header received')
+            pass
+        elif self.headers.getheader('Authorization') == 'Basic '+keyAuth:
+            self.serve_request()
+            pass
+        else:
+            self.do_AUTHHEAD()
+            self.wfile.write(self.headers.getheader('Authorization'))
+            self.wfile.write('not authenticated')
+            pass
+
+    #handle the authentication
+    def do_AUTHHEAD(self):
+        print "send header authenticated"
+        self.send_response(401)
+        self.send_header('WWW-Authenticate', 'Basic realm=\"Test\"')
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+
     # handle incoming request
     # 
     # provides several functions on the pathes: 
@@ -285,6 +328,17 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             elif url_parts.path=='/upload':
                 self.send_response(200)
                 self.end_headers()
+            elif ".jpg" in url_parts.path:
+                self.send_response(200)
+                url_path = url_parts.path
+                file_path=os.path.abspath('./'+url_path)
+                self.cam_capture(url_path[9:])
+                self.send_header('Content-Type','image/JPEG')
+                f = open(file_path,'rb')
+                self.end_headers()
+                #send file content
+                self.wfile.write(f.read())
+                #del(camera) 
             else:
                 self.serve_file(url_parts.path)
         except Exception as e:
@@ -293,6 +347,11 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 # multithreading server
 class ThreadingServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
+    global keyAuth 
+    if len(sys.argv)<2:
+        print "usage webserver.py [username:password]"
+        sys.exit()
+    keyAuth = base64.b64encode(sys.argv[1])
     pass
 
 try:

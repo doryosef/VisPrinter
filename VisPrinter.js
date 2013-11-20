@@ -418,6 +418,7 @@ VisPrinter=new function(){
 		this.check();
 		this.checkState();
 		load_gcode();
+		load_image();
 	}
 }
 
@@ -498,6 +499,11 @@ function cancelFullscreen() {
   } else if(document.webkitCancelFullScreen) {
     document.webkitCancelFullScreen();
   }
+}
+function load_image(){
+	var imgr = document.getElementById('img_retrieving').src ="tmp_img\\"+ new Date().getTime()+".jpg";
+	setTimeout("load_image()", 30000);
+
 }
 
 function load_gcode(){

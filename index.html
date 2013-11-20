@@ -20,6 +20,7 @@
         <div id="move_tab" class="active_tab" onClick="tabs('move_tab','move'); return false;">controls</div>
         <div id="3D_tab" class="inactive_tab" onClick="tabs('3D_tab','3D'); return false;">3D g-code: <span id="gcode_name"><i>none</i></span></div>
         <div id="log_tab" class="inactive_tab" onClick="tabs('log_tab','log'); return false;">console</div>
+		<div id="cam_tab" class="inactive_tab" onClick="tabs('cam_tab','cam'); return false;">camera</div>
     </div>
     <div id="container">
         <div id="move" class="panel_showing">
@@ -113,6 +114,10 @@
                	<input style="font-size:18px;width:70%;" name=cmd onFocus="VisPrinter.cmd('G90')" title="issue command by pressing <enter>">
              </form>
         </div>
+		<div id="cam" class="panel_hidden">
+			<br/>
+			<img id="img_retrieving" alt="img retrieving" >
+		</div>
     </div>
 </div>
 <div id="right" onselectstart='return false'>
