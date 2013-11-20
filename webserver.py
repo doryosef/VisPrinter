@@ -276,8 +276,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             pass
         else:
             self.do_AUTHHEAD()
-            self.wfile.write(self.headers.getheader('Authorization'))
-            self.wfile.write('not authenticated')
+            self.wfile.write('Please provide user & password')
             pass
 
     #handle the authentication
