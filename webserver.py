@@ -283,7 +283,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_AUTHHEAD(self):
         print "send header authenticated"
         self.send_response(401)
-        self.send_header('WWW-Authenticate', 'Basic realm=\"Test\"')
+        self.send_header('WWW-Authenticate', 'Basic realm=\"3dPrinter printrun server\"')
         self.send_header('Content-type', 'text/html')
         self.end_headers()
 
