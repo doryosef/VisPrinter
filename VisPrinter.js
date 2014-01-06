@@ -501,9 +501,38 @@ function cancelFullscreen() {
   }
 }
 function load_image(){
-	var imgr = document.getElementById('img_retrieving').src ="tmp_img\\"+ new Date().getTime()+".jpg";
+	var time = new Date().getTime();
+	var imgr = document.getElementById('img_retrieving').src ="tmp_img\\"+ time +".jpg";
+	document.getElementById("refresh_time").innerHTML=tstamp();
 	setTimeout("load_image()", 30000);
+}
 
+function tstamp(){
+	var str = "";
+
+	var currentTime = new Date();
+    var hours = currentTime.getHours();
+    var minutes = currentTime.getMinutes();
+    var seconds = currentTime.getSeconds();
+	var dd = currentTime.getDate();
+	var mm = currentTime.getMonth()+1; //January is 0!
+	var yyyy = currentTime.getFullYear();
+	
+	if(dd<10) {
+		dd='0'+dd;
+	}
+	if(mm<10) {
+		mm='0'+mm;
+	}
+	
+	if (minutes < 10) {
+        minutes = "0" + minutes;
+    }
+    if (seconds < 10) {
+        seconds = "0" + seconds;
+    }
+    return str += dd + "." + mm + "." + yyyy  + ":" + hours + "." + minutes + "." + seconds;
+	//return str+= dd +"/"+ mm + "/" + yyyy+":"+seconds;
 }
 
 function load_gcode(){

@@ -1,7 +1,9 @@
 #VisPrinter
 
-Update 20/11/2013
+Update 06/01/2014
 
+Log file added
+Show the time stamp of the picture   
 
 added camera module for taking picture every 30 sec 
 
@@ -22,12 +24,18 @@ added camera module for taking picture every 30 sec
 		
 	installation:
 		-  modify pronsole.py to your port & baudrate Line 193
-		
 		- python with:  
 			opencv2
 			pyserial
 			numpy
 			
+	thing to add:
+		- log file
+		- delete temp image
+		- stream video 
+		- Integration with other slice software
+		- fixing stuff 
+		
 ![camera](http://imageshack.com/a/img35/9263/j2cc.jpg)
 
 

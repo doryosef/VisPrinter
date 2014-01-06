@@ -21,6 +21,7 @@ import settings
 import base64
 import StringIO
 import cv2
+import logging
 
 # our pronterface instance
 printer=pronsole.pronsole()
@@ -277,6 +278,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         else:
             self.do_AUTHHEAD()
             self.wfile.write('Please provide user & password')
+            logging.warning('Authentication faild')
             pass
 
     #handle the authentication
@@ -309,7 +311,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             if url_parts.path=='/pronsole':
                 self.serve_pronsole(url_params.get('cmd')[0])
             elif url_parts.path=='/configs':
-                self.serve_configs()            
+                self.serve_configs()
             elif url_parts.path=='/printer':
                 self.serve_printer()      
             elif url_parts.path=='/slic3r':
@@ -332,16 +334,19 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 url_path = url_parts.path
                 file_path=os.path.abspath('./'+url_path)
                 self.cam_capture(url_path[9:])
+                logging.info('Pic taken')
                 self.send_header('Content-Type','image/JPEG')
                 f = open(file_path,'rb')
                 self.end_headers()
                 #send file content
                 self.wfile.write(f.read())
+                logging.info('Pic save & send')
                 #del(camera) 
             else:
                 self.serve_file(url_parts.path)
         except Exception as e:
             print traceback.format_exc()
+            logging.exception("exception: ")
             self.send_error(404,'Request to "%s" failed: %s' % (self.path, str(e)) )
 
 # multithreading server
@@ -360,10 +365,12 @@ try:
     server = ThreadingServer(('', settings.port), RequestHandler) # multi threaded server
     #server = BaseHTTPServer.HTTPServer(('', settings.port), RequestHandler)  # single threaded server
     print 'Server running on port '+str(settings.port)
+    logging.basicConfig(filename='log.txt', level=logging.DEBUG, format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p')
     # and run it...
     server.serve_forever()
 except KeyboardInterrupt:
     # on ctrl+c try to close cleanly
     # TODO this doesn't always seem to work, especially if stdout from pronsole is redirected it seems
+    logging.exception("KeyboardInterrupt exception: ")
     server.socket.close()
 
