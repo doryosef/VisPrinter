@@ -1,45 +1,64 @@
 #VisPrinter
+Update 12/05/2014
 
-Update 06/01/2014
 
-Log file added
-Show the time stamp of the picture   
+
+* STL features (ASCII)
+	- preview
+	- slice
+	- slice configuration
+	
+##to get started:
+	 - edit settings.py : slicer="[your slic3r location]\slic3r-console.exe"
+	 - export config... of slicer to VisPrinter\configs
+	 - enjoy the madness
+
+modified to windows 
+
+![camera](http://imageshack.com/a/img834/1/sad4k.jpg)
+
+TO DO:
+
++ fix save edit configuration
++ add binary stl features
++ delete temp image
++ stream video 
+
+06/01/2014
+
+- Log file added
+- Show the time stamp of the picture   
 
 added camera module for taking picture every 30 sec 
 
 * will save picture under 'tmp_img' folder
-		- add new section "cam"
-		- will save picture under 'tmp_img' folder
-		- picture name is a time stamp
-		- only when clinet ask for image the server will send it 
-		[you will have to delete the picture inside the folder from time to time...]
-		
-	* Authorization
-		- when starting the server need to pass 1 arg [user:password]
-			- [for windows users just edit run.cmd]
-		- every request have to Authorize
-		
-	* all the good stuff from before 
-		- yyyaay!
+	- add new section "cam"
+	- will save picture under 'tmp_img' folder
+	- picture name is a time stamp
+	- only when clinet ask for image the server will send it 
+	[you will have to delete the picture inside the folder from time to time...]
+	
+* Authorization
+	- when starting the server need to pass 1 arg [user:password]
+		- [for windows users just edit run.cmd]
+	- every request have to Authorize
+	
+* all the good stuff from before 
 		
 	installation:
-		-  modify pronsole.py to your port & baudrate Line 193
+	
+		- modify pronsole.py to your port & baudrate Line 193
 		- python with:  
-			opencv2
-			pyserial
-			numpy
-			
-	thing to add:
-		- log file
-		- delete temp image
-		- stream video 
-		- Integration with other slice software
-		- fixing stuff 
+			- opencv2
+			- pyserial
+			- numpy
 		
 ![camera](http://imageshack.com/a/img35/9263/j2cc.jpg)
 
 
 ![Authorization](http://imageshack.com/a/img51/2649/olpl.jpg)
+
+thanks to mlaws & dronus
 
 
 printing in 3d when you are not at home is very dangerous

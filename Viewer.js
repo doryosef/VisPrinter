@@ -8,8 +8,8 @@ Viewer=function(container) {
 	
 	this.angleX = -45;
 	this.angleY = 0;
-	this.posX=30;
-	this.posY=-50;
+	this.posX=0;
+	this.posY=0;
 	this.posZ=5;
 
 	// Get a new WebGL canvas

@@ -37,7 +37,8 @@ VisPrinter=new function(){
 
 	// load a .stl or .gcode file for preview
 	this.load=function(file){
-		localStorage.gcode_name=file.name;
+		document.getElementById('slice_stl').style.display = "none";
+		localStorage.gcode_stl_name=file.name;
 		document.getElementById('filename').innerHTML=file.name;
 		localStorage.session=this.getSession();
 		document.getElementById('slicingStyle').innerHTML='.sliced{visibility: hidden;}';
@@ -45,13 +46,22 @@ VisPrinter=new function(){
 		reader.onload=function(e){
 			var text=e.target.result;
 			var suffix=file.name.substring(file.name.lastIndexOf('.'));
-			if(suffix=='.gcode') {
+			if(suffix=='.stl'  ) {
+				document.getElementById('slice_stl').style.display = "inline";
+				if(gltest!=null){
+					if(confirm('Produce 3D STL preview of '+file.name+' ?')==true){
+						VisPrinter.parseStl(text);	
+					}
+				}
+				
+			}
+			else if(suffix=='.gcode') {
 				VisPrinter.uploadGcode(text);
 				if(gltest!=null){
 					if(confirm('Produce 3D gcode preview of '+file.name+' ?')==true){
-						document.getElementById('gcode_name').innerHTML='<i>working...</i>';
+						document.getElementById('gcode_stl_name').innerHTML='<i>working...</i>';
 						VisPrinter.onSliced(text);
-						document.getElementById('gcode_name').innerHTML=localStorage.gcode_name;
+						document.getElementById('gcode_stl_name').innerHTML=localStorage.gcode_stl_name;
 						VisPrinter.console.value+='\n>Finished producing 3D g-code preview for '+filename;
 						tabs('3D_tab','3D');
 					}
@@ -64,6 +74,50 @@ VisPrinter=new function(){
 			alert(e.message);
 		}
 		reader.readAsText(file);
+	}
+	
+	// parse a .stl file for 3d preview
+	this.parseStl=function(stl){
+
+		this.stl=stl;
+		var mesh = new GL.Mesh({ normals: true, colors: true });
+
+		var lines=stl.split("\n");
+		var triangle=[];
+		var index=0;
+		
+		if (lines[0].indexOf("solid")>-1){
+			document.getElementById('gcode_stl_name').innerHTML='<i>working...</i>';
+			for(var i=0; i<lines.length; i++){
+				var line=lines[i].trim();
+				if (line.indexOf("vertex")>-1){
+					var parts=line.split(/ +/);
+					var vertex=[parseFloat(parts[1]),parseFloat(parts[2]),parseFloat(parts[3])];
+					//var index=indexer.add(vertex);
+					triangle.push(index);
+					index++;
+					if(triangle.length==3) {
+						mesh.triangles.push(triangle);
+						triangle=[];
+					}
+					mesh.vertices.push(vertex);
+					mesh.colors.push([0,1,1]);
+				}
+			}
+			mesh.computeNormals();	
+			mesh.compile();
+			this.mesh=mesh;
+
+			this.update();
+			document.getElementById('slicingStyle').innerHTML='';
+			
+			document.getElementById('gcode_stl_name').innerHTML=localStorage.gcode_stl_name;
+			VisPrinter.console.value+='\n>Finished producing 3D STL preview for '+filename;
+			tabs('3D_tab','3D');
+		}
+		else{
+		alert("only ascii stl files");
+		}
 	}
 
 // issue a http POST request and call callback on response
@@ -195,6 +249,34 @@ VisPrinter=new function(){
 		}
 		this.progress(caption, progress/100, time, offset);
 	}
+	
+	// invoke the slicer.
+	// first, the .stl to be sliced is uploaded to the server
+	// second, if the upload completes, it's callback invokes the slicer
+	// third, if the slicer completes, it's callback calls onScliced(...)
+	this.slice=function(){
+		if(!this.stl){
+			alert("Nothing to slice. Load some .stl first.");
+			return;
+		}
+		
+		var config=document.getElementById('config').value;
+		
+		// create upload completed callback to invoke slicer
+		var onUploaded=function(response){
+			this.console.value+="\nSlicing...\n";
+			VisPrinter.httpGet('slic3r?config='+config,function(response){
+				// slicing completed callback
+				VisPrinter.console.value+="\nSlicing complete.\n";
+				VisPrinter.onSliced(response)
+			});
+		}
+		// issue request to upload .stl
+		this.httpPost('upload',{'stl':this.stl}, onUploaded);
+		VisPrinter.progress("Uploading stl...",.5);
+		this.console.value+="\nUploading stl...\n";
+
+	}
 
 	// upload a ready made .gcode 
 	this.uploadGcode=function(text){
@@ -208,6 +290,12 @@ VisPrinter=new function(){
 		this.httpPost('upload',{'gcode':text}, onUploaded);
 		this.console.value+="\nUploading gcode...\n";
 		VisPrinter.progress("Uploading gcode...",.5);
+	}
+	
+	// show edit.html for the currently selected config
+	this.editConfig=function(){
+		var config=document.getElementById('config').value;
+		window.open('edit.html?'+config);
 	}
 
 	// issue G1 gcode to send printer to location given by goto form
@@ -374,6 +462,21 @@ VisPrinter=new function(){
 				}
 		}
 	}
+	
+	// /config response handler
+	// fills in the config selector dropdown
+	this.onConfigs=function(response){
+		var configs=response.split("\n");
+		var select=document.getElementById('config');
+		for(var i=0; i<configs.length; i++){
+			var config=configs[i];
+			if(!config) continue;
+			var option=document.createElement('option');
+			option.value=config;
+			option.innerHTML=config.substr(config.indexOf('/')+1);
+			select.add(option);
+		}	
+	}
 
 	// request server /cancel 
 	// this cancels the current operation, that may be a slicing or printing operation
@@ -417,8 +520,9 @@ VisPrinter=new function(){
 		restoreValues();
 		this.check();
 		this.checkState();
-		load_gcode();
+		//load_gcode();  //get lastest gcode from session
 		load_image();
+		this.httpGet('configs',function(response){VisPrinter.onConfigs(response)});
 	}
 }
 

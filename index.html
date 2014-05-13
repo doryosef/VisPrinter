@@ -18,7 +18,7 @@
 <div id="left" onselectstart='return false'>
 	<div id="tabs">
         <div id="move_tab" class="active_tab" onClick="tabs('move_tab','move'); return false;">controls</div>
-        <div id="3D_tab" class="inactive_tab" onClick="tabs('3D_tab','3D'); return false;">3D g-code: <span id="gcode_name"><i>none</i></span></div>
+        <div id="3D_tab" class="inactive_tab" onClick="tabs('3D_tab','3D'); return false;">3D viewer: <span id="gcode_stl_name"><i>none</i></span></div>
         <div id="log_tab" class="inactive_tab" onClick="tabs('log_tab','log'); return false;">console</div>
 		<div id="cam_tab" class="inactive_tab" onClick="tabs('cam_tab','cam'); return false;">camera</div>
     </div>
@@ -144,17 +144,20 @@
         <div style="clear:both;"></div>
     </form>
 	<form name="gcode" onSubmit="return false">
-        <h2>load gcode</h2>
-        <input name=stl type=file onChange="VisPrinter.load(this.files[0])">
+        <h2>load file</h2>
+        <input name=stl type=file accept=".stl,.gcode,.g" onChange="VisPrinter.load(this.files[0])">
+
     </form>
-    <!--
+    
     <form onSubmit="return false">
-        <h2>slice</h2>
-        <select name=config id=config></select> 
-        <button onClick="VisPrinter.editConfig()" title="edit current settings">edit</button>
-        <button onClick="VisPrinter.slice()" title="slice this object according to current settings">slice</button>
+		<div id="slice_stl" style="display: none;">
+			<h2>slice</h2>
+			<select name=config id=config ></select> 
+			<button onClick="VisPrinter.editConfig()" title="edit current settings">edit</button>
+			<button onClick="VisPrinter.slice()" title="slice this object according to current settings">slice</button>
+		</div>
     </form>
-    -->
+    
     <form onSubmit="return false" class="online">    
         <h2>print <span id="filename"></span></h2>
         <button onClick="VisPrinter.print()"  class="not_paused not_printing">print</button>
@@ -171,7 +174,7 @@
 
 </div>
 <div id="bottom" onselectstart='return false'>
-	<div id="progress" class="online printing">
+	<div id="progress">
     	<div><span id=progressName></span>
     		<div id=progressBar>
             	

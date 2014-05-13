@@ -126,9 +126,10 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
         # invoke the slic3r with progress indicator
-        self.call_monitored(settings.slicer+' --debug --load '+config+' -o tmp/'+session_id+'.gcode tmp/'+session_id+'.stl',self.monitor_slic3r)	
+        logging.info('slicing start: '+ settings.slicer+' --debug --load '+config+' -o tmp\\'+session_id+'.gcode tmp\\'+session_id+'.stl')
+        self.call_monitored(settings.slicer+' --debug --load '+config+' -o tmp\\'+session_id+'.gcode tmp\\'+session_id+'.stl',self.monitor_slic3r)
 	# pass resulting .gcode file content to client
-        gcode=open('tmp/'+session_id+'.gcode', 'r').read()
+        gcode=open('tmp\\'+session_id+'.gcode', 'r').read()
         self.wfile.write(gcode)
         progress="Slicing... 100"
 
@@ -188,8 +189,8 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     # TODO can we provide an estimation of progress at the earlier 'geometry' phase too?
     def monitor_slic3r(self,line):
         global progress
-        # find number of layers to do. this is first mentioned as the last 'Making surfaces ...' output
-        match=re.match('Making surfaces for layer ([0-9]+)',line)
+        # find number of layers to do. this is first mentioned as the last 'Making perimeters ...' output
+        match=re.match('Making perimeters for layer ([0-9]+)',line)
         if match:
             self.slic3r_layers=int(match.group(1))
         # find actual 'Filling layer' message, indicating the most costly operations's progress
@@ -243,7 +244,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             if key.startswith('configs/'):
                 filename=key
             else:
-                filename='tmp/'+session_id+'.'+key;
+                filename='tmp\\'+session_id+'.'+key;
             self.save_tmp(filename, contents[0])
 
     # get session id from cookie
@@ -323,7 +324,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             elif url_parts.path=='/temp':
                 self.serve_temp()
             elif url_parts.path=='/gcode':
-                self.serve_file('tmp/'+session_id+'.gcode')
+                self.serve_file('tmp\\'+session_id+'.gcode')
             elif url_parts.path=='/cancel':
                 self.serve_cancel(session_id)
             elif url_parts.path=='/upload':
