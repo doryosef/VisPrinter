@@ -330,6 +330,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             elif url_parts.path=='/upload':
                 self.send_response(200)
                 self.end_headers()
+                self.serve_cancel(session_id)
             elif ".jpg" in url_parts.path:
                 self.send_response(200)
                 url_path = url_parts.path

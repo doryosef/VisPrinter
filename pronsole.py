@@ -191,7 +191,7 @@ class Settings:
         # defaults here.
         # the initial value determines the type
         self.port = "COM3"
-        self.baudrate = 250000
+        self.baudrate = 115200
         self.bedtemp_abs = 110
         self.bedtemp_pla = 60
         self.temperature_abs = 215
