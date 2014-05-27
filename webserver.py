@@ -68,7 +68,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             temp = get_image()
         print("Taking image...")
         camera_capture = get_image()
-        cv2.imwrite("tmp_img\\"+file_name, camera_capture)
+        cv2.imwrite("tmp_img/"+file_name, camera_capture)
          
     # serve a file from our folder
     def serve_file(self,url_path):
@@ -126,10 +126,10 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
         # invoke the slic3r with progress indicator
-        logging.info('slicing start: '+ settings.slicer+' --debug --load '+config+' -o tmp\\'+session_id+'.gcode tmp\\'+session_id+'.stl')
-        self.call_monitored(settings.slicer+' --debug --load '+config+' -o tmp\\'+session_id+'.gcode tmp\\'+session_id+'.stl',self.monitor_slic3r)
+        logging.info('slicing start: '+ settings.slicer+' --debug --load '+config+' -o tmp/'+session_id+'.gcode tmp/'+session_id+'.stl')
+        self.call_monitored(settings.slicer+' --debug --load '+config+' -o tmp/'+session_id+'.gcode tmp/'+session_id+'.stl',self.monitor_slic3r)
 	# pass resulting .gcode file content to client
-        gcode=open('tmp\\'+session_id+'.gcode', 'r').read()
+        gcode=open('tmp/'+session_id+'.gcode', 'r').read()
         self.wfile.write(gcode)
         progress="Slicing... 100"
 
@@ -244,7 +244,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             if key.startswith('configs/'):
                 filename=key
             else:
-                filename='tmp\\'+session_id+'.'+key;
+                filename='tmp/'+session_id+'.'+key;
             self.save_tmp(filename, contents[0])
 
     # get session id from cookie
@@ -324,7 +324,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             elif url_parts.path=='/temp':
                 self.serve_temp()
             elif url_parts.path=='/gcode':
-                self.serve_file('tmp\\'+session_id+'.gcode')
+                self.serve_file('tmp/'+session_id+'.gcode')
             elif url_parts.path=='/cancel':
                 self.serve_cancel(session_id)
             elif url_parts.path=='/upload':
