@@ -324,7 +324,7 @@ VisPrinter=new function(){
 	// must be read by fetching the printer log at /printer
 	this.cmd=function(cmd,callback){
 		var console=document.getElementById('console');
-		if(!callback) console.value+="\n>"+cmd+"\n";
+		if(!callback) console.value+=">"+cmd+"\n";
 		if(!callback) callback=function(response){VisPrinter.onCmd(response)};
 		this.httpGet('pronsole?cmd='+encodeURI(cmd), callback);
 	}
@@ -552,9 +552,9 @@ function mov(axis, distance) {
 	var feed = '';
 	VisPrinter.cmd('G91');
 	if(axis == 'Z') {
-		feed = '300';
+		feed = '9000';
 	} else {
-		feed = '3000';
+		feed = '30000';
 	}
 	window.setTimeout(function(){VisPrinter.cmd('G1 '+axis+distance+' F'+feed)},50);
 }
