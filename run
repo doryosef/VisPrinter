@@ -1,0 +1,2 @@
+cd ~/visprinter.hradec/
+python ./webserver.py hradec:tuctuc 

@@ -328,6 +328,11 @@ VisPrinter=new function(){
 		if(!callback) callback=function(response){VisPrinter.onCmd(response)};
 		this.httpGet('pronsole?cmd='+encodeURI(cmd), callback);
 	}
+
+	this.shell=function(cmd,callback){
+		if(!callback) callback=function(response){VisPrinter.onCmd(response)};
+		this.httpGet('shell?cmd='+encodeURI(cmd), callback);
+	}
 	
 	// default callback for pronsole commands 
 	// append the result to console textarea
