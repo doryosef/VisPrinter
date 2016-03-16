@@ -78,9 +78,9 @@
                     <h2>movement</h2> 
                     <table id="move_controls">
                     	<tbody>
-                        <tr><td colspan="2" rowspan="2" class="graph_button_alt" onClick="VisPrinter.cmd('G28 X0')">home x</td><td></td><td class="graph_button" onClick="mov('Y','100')">100</td><td></td><td colspan="2" rowspan="2" class="graph_button_alt" onClick="VisPrinter.cmd('G28 Y0')">home y</td><td></td><td class="graph_button" onClick="mov('Z','-100')">100</td></tr>
-                        <tr><td></td><td class="graph_button" onClick="mov('Y','10')">10</td><td></td><td></td><td class="graph_button" onClick="mov('Z','-10')">10</td></tr>
-                        <tr><td></td><td></td><td></td><td class="graph_button" onClick="mov('Y','1')">1</td><td></td><td></td><td></td><td style="width:40px;"></td><td class="graph_button" onClick="mov('Z','-1')">1</td></tr>
+                        <tr><td colspan="2" rowspan="2" class="graph_button_alt" onClick="VisPrinter.cmd('G28 X0')">home x</td><td></td><td class="graph_button" onClick="mov('Y','100')">+100</td><td></td><td colspan="2" rowspan="2" class="graph_button_alt" onClick="VisPrinter.cmd('G28 Y0')">home y</td><td></td><td class="graph_button" onClick="mov('Z','100')">+100</td></tr>
+                        <tr><td></td><td class="graph_button" onClick="mov('Y','10')">+10</td><td></td><td></td><td class="graph_button" onClick="mov('Z','+10')">+10</td></tr>
+                        <tr><td></td><td></td><td></td><td class="graph_button" onClick="mov('Y','1')">+1</td><td></td><td></td><td></td><td style="width:40px;"></td><td class="graph_button" onClick="mov('Z','1')">+1</td></tr>
                         <!-- middle row -->
                         <tr>
                         	<td class="graph_button" onClick="mov('X','-100')">100</td>
@@ -95,24 +95,37 @@
                         </tr>
                         
                         
-                        <tr><td></td><td></td><td></td><td class="graph_button" onClick="mov('Y','-1')">1</td><td></td><td></td><td></td><td></td><td class="graph_button" onClick="mov('Z','1')">1</td></tr>
-                        <tr><td colspan="2" rowspan="2" class="graph_button_alt" onClick="VisPrinter.cmd('G28')">home all</td><td></td><td class="graph_button" onClick="mov('Y','-10')">10</td><td></td><td colspan="2" rowspan="2" class="graph_button_alt" onClick="VisPrinter.cmd('G28 Z0')">home z</td><td></td><td class="graph_button" onClick="mov('Z','10')">10</td></tr>
-                        <tr><td></td><td class="graph_button" onClick="mov('Y','-100')">100</td><td></td><td></td><td class="graph_button" onClick="mov('Z','100')">100</td></tr>
+                        <tr><td></td><td></td><td></td><td class="graph_button" onClick="mov('Y','-1')">-1</td><td></td><td></td><td></td><td></td><td class="graph_button" onClick="mov('Z','-1')">-1</td></tr>
+                        <tr><td colspan="2" rowspan="2" class="graph_button_alt" onClick="VisPrinter.cmd('G28')">home all</td><td></td><td class="graph_button" onClick="mov('Y','-10')">-10</td><td></td><td colspan="2" rowspan="2" class="graph_button_alt" onClick="VisPrinter.cmd('G28 Z0')">home z</td><td></td><td class="graph_button" onClick="mov('Z','-10')">-10</td></tr>
+                        <tr><td></td><td class="graph_button" onClick="mov('Y','-100')">-100</td><td></td><td></td><td class="graph_button" onClick="mov('Z','-100')">-100</td></tr>
+
+
                         </tbody>
+
+     <div  style="
+position:absolute;
+    top:420px;
+    bottom:0px;
+    left:0px;
+    right:0px;
+" >
+ <textarea class=console id="console"
+style="font-size:10px;position: absolute;
+    width:97%;
+    height:100%;
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+"
+>>Server started...</textarea>
+</div>
+
                     </table>
-                </form>
         	</div>
+                </form>
         </div>
         <div id="3D" class="panel_hidden">
         	<div class="view" id="view"></div>
-        </div>
-        <div id="log" class="panel_hidden">
-        	<button onClick="document.getElementById('console').value=''" id="clearlog">clear</button>
-        	<textarea class=console id="console">>Server started...</textarea>
-            <form id="manual_command" class=online onSubmit="VisPrinter.cmd(this.cmd.value); return false;">
-               	<h2>send gcode</h2>
-               	<input style="font-size:18px;width:70%;" name=cmd onFocus="VisPrinter.cmd('G90')" title="issue command by pressing <enter>">
-             </form>
         </div>
 		<div id="cam" class="panel_hidden">
 			<p id="refresh_time"></p>
@@ -171,6 +184,20 @@
         <button onClick="document.location.reload(true)">refresh</button>
         <button onClick="fullscreen()">full screen</button>
      </form>
+    <form onSubmit="return false" class="online">    
+        <h2>Host Commands</h2>
+        <button onClick="VisPrinter.shell('sudo halt')">Shutdown</button>
+        <span id=status></span>
+    </form>
+
+
+
+            <form id="manual_command" class=online2 onSubmit="VisPrinter.cmd(this.cmd.value); return false;">
+               	<h2>send gcode</h2>
+               	<input style="font-size:18px;width:70%;" name=cmd onFocus="VisPrinter.cmd('G90')" title="issue command by pressing <enter>">
+             </form>
+	     <button onClick="document.getElementById('console').value=''" id="clearlog">clear</button>
+
 
 </div>
 <div id="bottom" onselectstart='return false'>
@@ -183,7 +210,7 @@
     </div>
 </div>
 	<script>
-	//	VisPrinter.attach();
+		VisPrinter.attach();
 	</script>
 </body>
 </html>

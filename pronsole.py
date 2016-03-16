@@ -120,7 +120,7 @@ def estimate_duration(g):
     totaltravel = 0.0
     moveduration = 0.0
     totalduration = 0.0
-    acceleration = 1500.0 #mm/s/s  ASSUMING THE DEFAULT FROM SPRINTER !!!!
+    acceleration = 9000.0 #mm/s/s  ASSUMING THE DEFAULT FROM SPRINTER !!!!
     layerduration = 0.0
     layerbeginduration = 0.0
     layercount=0
@@ -191,14 +191,14 @@ class Settings:
         # defaults here.
         # the initial value determines the type
         self.port = "COM3"
-        self.baudrate = 250000
+        self.baudrate = 115200
         self.bedtemp_abs = 110
         self.bedtemp_pla = 60
         self.temperature_abs = 215
         self.temperature_pla = 185
         self.xy_feedrate = 3000
-        self.z_feedrate = 200
-        self.e_feedrate = 300
+        self.z_feedrate = 3000
+        self.e_feedrate = 3000
         self.slicecommand="python skeinforge/skeinforge_application/skeinforge_utilities/skeinforge_craft.py $s"
         self.sliceoptscommand="python skeinforge/skeinforge_application/skeinforge.py"
 
